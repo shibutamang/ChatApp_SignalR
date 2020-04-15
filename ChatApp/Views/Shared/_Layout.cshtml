@@ -1,0 +1,180 @@
+﻿@using Microsoft.AspNet.Identity
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Chat App</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300' rel='stylesheet' type='text/css'>
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css" />  
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    @RenderSection("css", required: false)
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-light">
+        <div class="container">
+             
+            <a class="navbar-brand" href="#"><img src="~/Content/Images/green_logo.png" height="30" /> Chat Application</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                @if (User.Identity.IsAuthenticated)
+                {
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="fa fa-home"></i> Home <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Message"><i class="fa fa-comments"></i> Message</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Friends/Index"><i class="fa fa-users"></i>Friends</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="~/Account/Profile"><i class="fa fa-cog"></i>Profile</a>
+                    </li>
+                </ul>
+                }
+
+                <ul class="navbar-nav ml-auto">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        @*<li class="nav-item">
+                                <a class="nav-link" href="#"><i class="fa fa-bell"></i><span class="badge badge-pill badge-success">0</span></a>
+                            </li>*@
+                        <li class="nav-item dropdown mr-2">
+                            <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-bell"></i><span class="badge badge-pill badge-danger" id="notificationCount" style="background-color:#ff422f"></span>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <ul id="notifications" style="list-style:none;padding:0">
+                                    @*<li>
+                                            <a class="dropdown-item" style="font-size:11px" href="javascript:;">Simon likes your post.</a>
+                                        </li>*@
+                                </ul>
+
+                            </div>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                @User.Identity.GetUserName()
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit()">Logoff</a>
+                                }
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="~/Account/Login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="~/Account/Register">Register</a>
+                        </li>
+                    }
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container body-content" style="margin-top:73px">
+
+        @RenderBody()
+
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Chat Application</p>
+        </footer>
+    </div>
+
+    <!--Script references. -->
+    <!--Reference the jQuery library. -->
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+    @*<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/es-us.js"></script>*@
+    <script src="https://cdn.jsdelivr.net/momentjs/2.13.0/moment.min.js"></script>
+    <!--Reference the SignalR library. -->
+    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <!--Reference the autogenerated SignalR hub script. -->
+    <script src="~/signalr/hubs"></script>
+
+
+    <script src="~/Scripts/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+
+        $(function () { 
+
+            var notificationCount = 0
+            $('#notificationCount').text(notificationCount);
+
+            var chat = $.connection.chatHub;
+
+            // Create a function that the hub can call to broadcast messages.
+            chat.client.addChatMessage = function (name, message) {
+
+            };
+
+            var notifications_ul = $('#notifications');
+            // Declare a proxy to reference the hub.
+            var notificationHub = $.connection.notificationHub;
+
+            $.connection.hub.start().done(function () {
+                console.log('main hub started');
+
+                notificationHub.server.getNotifications().then(function (v) {
+                    console.log('notifications', v);
+                    notificationCount = v.length;
+
+                    if (!notificationCount) {
+                        $("#notifications").append('<span style="margin-left:5px;font-size:12px">No new notificaions.</span>');
+                    }
+
+                    $('#notificationCount').text(notificationCount);
+
+                    v.forEach(function (notification) {
+                         var time = moment(notification.SentDate).startOf('hour').fromNow(); 
+                        $("#notifications").append('<li style="background-color:#f5f5f5;margin-bottom:2px;">'
+                            + '<a class="dropdown-item" style="font-size:11px" href="javascript:;">'
+                            + notification.Title + '<br/>'
+                            + '<i style="font-size:9px"><i class="fa fa-clock-o"></i> ' + time + '</i>'
+                            + '</a>'
+                            + '</li>');
+                    });
+                });
+
+            });
+
+            //get notifications
+            notificationHub.client.getNotification = function (notification) {
+                //console.log('layout-notification', notification);
+                var time = moment(notification.SentDate).startOf('hour').fromNow(); 
+                notificationCount += 1;
+                $('#notificationCount').text(notificationCount);
+                $("#notifications").append('<li style="background-color:#f5f5f5;margin-bottom:2px;">'
+                    + '<a class="dropdown-item" style="font-size:11px" href="javascript:;">'
+                    + notification.Title + '<br/>'
+                    + '<i style="font-size:9px"><i class="fa fa-clock-o"></i> ' + time +'</i>'
+                    + '</a>'
+                    + '</li>');
+            };
+
+        });
+    </script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

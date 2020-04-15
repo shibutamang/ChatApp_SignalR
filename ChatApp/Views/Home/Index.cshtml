@@ -1,0 +1,69 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@using ChatApp.Models
+@model IEnumerable<PostViewModel>
+
+<div class="row">
+    <div class="container" style="margin-bottom:50px">
+
+        <div class="col-sm-6">
+           
+            <div class="jumbotron">
+                <h1 class="display-4">Hello, There!</h1>
+                <p class="lead">This is a simple hero unit, a simple jumbotron-style component for calling extra attention to featured content or information.</p>
+                <hr class="my-4"> 
+                <p class="lead">
+                    <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+                </p>
+            </div>
+
+            @foreach (var item in Model)
+            {
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <div class="card-title">
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz4J958ZZ112lGc0rSODjQgS5q3sfqzE2ZSrhl2O9ft8LUZJlu&s" height="40" class="rounded-circle" alt="Profile picture">
+                            <span>@item.UserName</span><br />
+                            <span class="text-muted" style="font-size:12px">Posted on: @item.PostedOn</span>
+                        </div>
+                        <p class="card-text">@item.Contents</p>
+                        <span class="border-top"></span>
+                        <hr />
+                        <a href="javascript:;" class="ml-1" onclick="like('@item.PostId')"><i class="fa fa-thumbs-up"></i>(@item.LikesCount)</a>
+                        <a href="javascript:;" class="ml-1"><i class="fa fa-comments"></i>(0)</a>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+ 
+@section Scripts{
+ 
+    <script type="text/javascript"> 
+        var url = '/api/Post/Like';
+ 
+        function like(postId) {
+            console.log('postid', postId); 
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify(postId),
+                contentType: "application/json; charset=utf-8",
+                success: function (result) {
+                    console.log(result);
+                    
+                }, 
+                error: function (error) {
+                    console.log('Error',error);
+                },
+              dataType: 'json'
+            });
+        }
+ 
+
+    </script>
+ }

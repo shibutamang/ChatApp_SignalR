@@ -1,0 +1,61 @@
+﻿@{
+    ViewBag.Title = "Friends"; 
+}
+
+<div class="row">
+    <div class="container row" style="margin-bottom:50px">
+
+        <div class="col-md-7">
+            <div class="h4">Friend List</div>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <img src="https://kingsteigntonschool.org/wp-content/uploads/2015/07/facebook-default-no-profile-pic.jpg" height="50" class="mr-2" alt="Profile image">
+                    <span>Brock Allen</span>
+                    <button type="button" class="btn btn-success btn-sm pull-right"><i class="fa fa-user"></i> View Profile</button>
+                </li>
+             
+            </ul>
+        </div>
+        <div class="col-md-5">
+            <div class="h4">Suggestion <small style="font-size:11px">(you can add more friends from here)</small></div>
+            <ul class="list-group" id="suggestions">
+                @*<li class="list-group-item">
+                    <img src="https://cdn.business2community.com/wp-content/uploads/2017/08/blank-profile-picture-973460_640.png" height="50" class="mr-2" alt="Profile image">
+                    <span>Brock Allen</span>
+                    <button type="button" class="btn btn-info btn-sm pull-right"><i class="fa fa-user-plus"></i> Add Friend</button>
+                </li>
+                <li class="list-group-item">
+                    <img src="https://cdn.business2community.com/wp-content/uploads/2017/08/blank-profile-picture-973460_640.png" height="50" class="mr-2" alt="Profile image">
+                    <span>Brock Allen</span>
+                    <button type="button" class="btn btn-info btn-sm pull-right"><i class="fa fa-user-plus"></i> Add Friend</button>
+                </li>
+                <li class="list-group-item">
+                    <img src="https://cdn.business2community.com/wp-content/uploads/2017/08/blank-profile-picture-973460_640.png" height="50" class="mr-2" alt="Profile image">
+                    <span>Brock Allen</span>
+                    <button type="button" class="btn btn-info btn-sm pull-right"><i class="fa fa-user-plus"></i> Add Friend</button>
+                </li>
+                <li class="list-group-item">
+                    <img src="https://cdn.business2community.com/wp-content/uploads/2017/08/blank-profile-picture-973460_640.png" height="50" class="mr-2" alt="Profile image">
+                    <span>Brock Allen</span>
+                    <button type="button" class="btn btn-info btn-sm pull-right"><i class="fa fa-user-plus"></i> Add Friend</button>
+                </li>*@
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+@section css{
+    <style>
+        .list-group-item {
+    border-top: 1px solid rgba(0,0,0,.125);
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    border-left: none;
+    border-right: none;
+}
+    </style>
+    } 
+
+@section Scripts{
+    <script src="~/Scripts/app/friends.js"></script>
+}

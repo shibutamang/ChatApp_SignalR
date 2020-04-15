@@ -1,0 +1,294 @@
+﻿@{
+    ViewBag.Title = "Messages";
+}
+
+<div class="row">
+    <div class="container">
+        <ul id="users"></ul>
+
+        <br />
+        @*<div class="container">
+                <input type="text" id="touser" placeholder="To User" />
+                <input type="text" id="message" placeholder="Type Message" />
+                <input type="button" id="sendmessage" value="Send" />
+                <input type="hidden" id="displayname" />
+
+            </div>*@
+
+        <div id="frame">
+            <div id="sidepanel">
+                <div id="profile">
+                    <div class="wrap">
+                        <img id="profile-img" src="https://www.gatewaychamber.com/Content/Uploads/ProfilePictures/default-user.png" class="rounded-circle online" alt="" />
+                        <p>@User.Identity.Name</p>
+                        @*<i class="fa fa-chevron-down expand-button" aria-hidden="true"></i>
+                        <div id="status-options">
+                            <ul>
+                                <li id="status-online" class="active"><span class="status-circle"></span> <p>Online</p></li>
+                                <li id="status-away"><span class="status-circle"></span> <p>Away</p></li>
+                                <li id="status-busy"><span class="status-circle"></span> <p>Busy</p></li>
+                                <li id="status-offline"><span class="status-circle"></span> <p>Offline</p></li>
+                            </ul>
+                        </div>
+                        <div id="expanded">
+                            <label for="twitter"><i class="fa fa-facebook fa-fw" aria-hidden="true"></i></label>
+                            <input name="twitter" type="text" value="mikeross" />
+                            <label for="twitter"><i class="fa fa-twitter fa-fw" aria-hidden="true"></i></label>
+                            <input name="twitter" type="text" value="ross81" />
+                            <label for="twitter"><i class="fa fa-instagram fa-fw" aria-hidden="true"></i></label>
+                            <input name="twitter" type="text" value="mike.ross" />
+                        </div>*@
+                    </div>
+                </div>
+                <div id="search">
+                    <label for=""><i class="fa fa-search" aria-hidden="true"></i></label>
+                    <input type="text" placeholder="Search contacts..." />
+                </div>
+                <div id="contacts">
+                    <ul style="list-style:none">
+                        @foreach (var user in ViewBag.users)
+                        { 
+                            <li class="contact" onclick="showChatWindow('@user.UserName')">
+                        
+                                <div class="wrap">
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="contact-status online" style="width:12px;height:12px;"></span>
+                                    }
+
+                                    <img src="https://www.gatewaychamber.com/Content/Uploads/ProfilePictures/default-user.png" class="rounded-circle" alt="" />
+                                    <div class="meta">
+                                        <p class="name">@user.UserName</p>
+                                    </div>
+                                </div>
+                            </li>
+                        }
+
+                         @*<li class="contact" onclick="showChatWindow('brock@hotmail.com')">
+                            <div class="wrap">
+                                <span class="contact-status online" style="width:12px;height:12px;"></span>
+                                <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
+                                <div class="meta">
+                                    <p class="name">brock@hotmail.com</p> 
+                                </div>
+                            </div>
+                        </li>*@ 
+
+                    </ul>
+                </div>
+                <div id="bottom-bar">
+                    <button id="addcontact"><i class="fa fa-user-plus fa-fw" aria-hidden="true"></i> <span>Add contact</span></button>
+                    <button id="settings"><i class="fa fa-cog fa-fw" aria-hidden="true"></i> <span>Settings</span></button>
+                </div>
+            </div>
+            <div class="content">
+                <div class="contact-profile">
+                    <img src="https://www.gatewaychamber.com/Content/Uploads/ProfilePictures/default-user.png" class="rounded-circle" alt="" />
+                    <p id="currentuser"></p>
+                    <div class="social-media">
+                        <i class="fa fa-close" onclick="closeChatWindow()" aria-hidden="true"></i> 
+                    </div>
+                </div>
+                <div class="messages">
+                    <ul id="chats">
+                       
+                         
+                    </ul>
+                </div>
+                <div class="message-input">
+                    <div class="wrap">
+                        <input type="text" id="message-box" placeholder="Write your message..." />
+                        <i class="fa fa-paperclip attachment" aria-hidden="true"></i>
+                        <button class="submit"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+
+    <script type="text/javascript">
+
+        //initialy hide the chat window
+        $('.content').hide();
+
+        function showChatWindow(user) {
+            //$('#chats').remove();
+            getUserMessages(user);
+
+            $('#currentuser').html(user);
+            $('.content').show();
+
+        }
+
+        //close chat window
+        function closeChatWindow() {
+    
+            $('.content').hide();
+            $('#currentuser').html('');
+        }
+
+        $(function () {
+            // Declare a proxy to reference the hub.
+            var chat = $.connection.chatHub; 
+
+            // Create a function that the hub can call to broadcast messages.
+            chat.client.addChatMessage = function (name, message) { 
+
+                $('<li class="sent"><img src="https://www.gatewaychamber.com/Content/Uploads/ProfilePictures/default-user.png" class="rounded-circle" alt="" /><p>' + message + '</p></li>').appendTo($('.messages ul'));
+                
+                // Html encode display name and message.
+                var encodedName = $('<div />').text(name).html();
+                var encodedMsg = $('<div />').text(message).html();
+                // Add the message to the page.
+                $('#discussion').append('<li><strong>' + encodedName
+                    + '</strong>:&nbsp;&nbsp;' + encodedMsg + '</li>');
+
+                //scroll down animate
+                  $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+            };
+
+            //update users list
+             //chat.client.getConnectedUsers = function (names) {
+             //        console.log('called', names);
+             //        names.forEach(function (item) {
+                     
+             //           //$('#users').append('<li>' + item[0].UserName + '</li>');
+             //       });
+             //}
+
+            //refresh users list
+             chat.client.refreshUsers = function (users) {
+                     console.log('refreshed users', users);
+                     users.forEach(function (item) {
+                     
+                        //$('#users').append('<li>' + item[0].UserName + '</li>');
+                    });
+             } 
+
+            // Get the user name and store it to prepend to messages.
+            //$('#displayname').val(prompt('Enter your name:', ''));
+            // Set initial focus to message input box.
+
+            $('#message').focus();
+            // Start the connection.
+            $.connection.hub.start().done(function () {
+
+                chat.server.updateUsers().done(function (users) {
+                      console.log('server users', users);
+                });
+
+                ////get notifications
+                //notificationHub.server.getNotifications().then(function (v) {
+      
+                //    $('#notificationcount').text(v.length);
+                //});
+        
+                $('#sendmessage').click(function () {
+
+                    // Call the Send method on the hub.
+                    chat.server.sendChatMessage($('#touser').val(), $('#message').val());
+                    // Clear text box and reset focus for next comment.
+                    $('#message').val('').focus();
+                });
+            });
+
+     
+
+            $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+
+            $("#profile-img").click(function () {
+                $("#status-options").toggleClass("active");
+            });
+
+            $(".expand-button").click(function () {
+                $("#profile").toggleClass("expanded");
+                $("#contacts").toggleClass("expanded");
+            });
+
+            $("#status-options ul li").click(function () {
+                $("#profile-img").removeClass();
+                $("#status-online").removeClass("active");
+                $("#status-away").removeClass("active");
+                $("#status-busy").removeClass("active");
+                $("#status-offline").removeClass("active");
+                $(this).addClass("active");
+
+                if ($("#status-online").hasClass("active")) {
+                    $("#profile-img").addClass("online");
+                } else if ($("#status-away").hasClass("active")) {
+                    $("#profile-img").addClass("away");
+                } else if ($("#status-busy").hasClass("active")) {
+                    $("#profile-img").addClass("busy");
+                } else if ($("#status-offline").hasClass("active")) {
+                    $("#profile-img").addClass("offline");
+                } else {
+                    $("#profile-img").removeClass();
+                };
+
+                $("#status-options").removeClass("active");
+            });
+
+            function newMessage() {
+                message = $(".message-input input").val();
+                if ($.trim(message) == '') {
+                    return false;
+                }
+
+                chat.server.sendChatMessage($('#currentuser').text(), message);
+
+                $('<li class="replies"><p>' + message + '</p></li>').appendTo($('.messages ul'));
+                $('.message-input input').val(null);
+                $('.contact.active .preview').html('<span>You: </span>' + message);
+                $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+            };
+
+            $('.submit').click(function () {
+                newMessage();
+            });
+
+            $(window).on('keydown', function (e) {
+                if (e.which == 13) {
+                    newMessage();
+                    return false;
+                }
+            });
+
+        });
+         
+        function getUserMessages(username) {
+        
+                $.ajax('http://localhost:49882/api/Message/GetMessage', {
+                method: 'GET',
+                data: { UserName: username },
+                success: function (value) {
+                    $('.messages ul').empty();
+                    value.forEach(function (v) {
+                       
+                        if (v.SentTo == username) {
+              
+                            $('<li class="replies"><p>' + v.Message + '</p></li>').appendTo($('.messages ul'));
+                        } else {
+                            $('<li class="sent"><img src="http://emilcarlsson.se/assets/mikeross.png" alt="" /><p>' + v.Message + '</p></li>').appendTo($('.messages ul'));
+                        } 
+                   
+                    });
+
+                    //animate scroll down animation
+                    $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+                },
+                error: function (e) {
+                    console.log(e);
+                }
+            });
+     
+        }
+ 
+        
+    </script>
+
+ 
+
+}
